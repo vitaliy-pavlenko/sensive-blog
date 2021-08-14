@@ -21,11 +21,18 @@ class PostQuerySet(models.QuerySet):
             post.comments_count = count_for_id[post.id]
         return list(self)
 
+    def fetch_tags(self):
+        tags = Tag.objects.annotate(posts_count=models.Count('posts'))
+        return self.prefetch_related(models.Prefetch('tags', queryset=tags))
+
 
 class TagQuerySet(models.QuerySet):
     def popular(self):
         popular_tags = self.annotate(posts_count=models.Count('posts')).order_by('posts_count')
         return popular_tags
+
+    def post_count(self):
+        return self.annotate(posts_count=models.Count('posts'))
 
 
 class Post(models.Model):
