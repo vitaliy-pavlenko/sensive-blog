@@ -12,7 +12,7 @@ def serialize_post(post, serialize_tags=True):
         'title': post.title,
         'teaser_text': post.text[:200],
         'author': post.author.username,
-        'comments_amount': post.comments_count if hasattr(post, 'comments_count') else None,
+        'comments_amount': getattr(post, 'comments_count', None),
         'image_url': post.image.url if post.image else None,
         'published_at': post.published_at,
         'slug': post.slug,

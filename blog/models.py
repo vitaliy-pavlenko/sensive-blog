@@ -4,8 +4,8 @@ from django.contrib.auth.models import User
 
 
 class PostQuerySet(models.QuerySet):
-    def year(self, year):
-        return self.filter(published_at__year=year).order_by('published_at')
+    def publication_year(self, year):
+        return self.filter(published_at__year=year)
 
     def popular(self):
         return self.annotate(likes_count=models.Count('likes')).order_by('likes_count')
@@ -26,15 +26,13 @@ class PostQuerySet(models.QuerySet):
 
 class TagQuerySet(models.QuerySet):
     def popular(self):
-        return self.annotate(posts_count=models.Count('posts')).order_by('posts_count')
+        return self.post_count().order_by('posts_count')
 
     def post_count(self):
         return self.annotate(posts_count=models.Count('posts'))
 
 
 class Post(models.Model):
-    objects = PostQuerySet.as_manager()
-
     title = models.CharField('Заголовок', max_length=200)
     text = models.TextField('Текст')
     slug = models.SlugField('Название в виде url', max_length=200)
@@ -56,6 +54,8 @@ class Post(models.Model):
         related_name='posts',
         verbose_name='Теги')
 
+    objects = PostQuerySet.as_manager()
+
     def __str__(self):
         return self.title
 
@@ -69,9 +69,9 @@ class Post(models.Model):
 
 
 class Tag(models.Model):
-    objects = TagQuerySet.as_manager()
-
     title = models.CharField('Тег', max_length=20, unique=True)
+
+    objects = TagQuerySet.as_manager()
 
     def __str__(self):
         return self.title
